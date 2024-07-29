@@ -47,6 +47,7 @@ public class Maze : MonoBehaviour
     public int depth = 30; //z length
     public byte[,] map;
     public int scale = 6;
+    [HideInInspector] public List<Transform> wallList;
 
     // Start is called before the first frame update
     void Start()
@@ -85,6 +86,7 @@ public class Maze : MonoBehaviour
                 {
                     Vector3 pos = new Vector3(x * scale, 0, z * scale);
                     GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    wallList.Add(wall.transform);
                     wall.transform.localScale = new Vector3(scale, scale, scale);
                     wall.transform.position = pos;
                 }

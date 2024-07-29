@@ -262,9 +262,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33bbdb95ccc4b4577a62495732a02d3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 10
-  depth: 10
+  width: 20
+  depth: 20
   scale: 6
+  wallList: []
 --- !u!114 &767762768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,6 +281,7 @@ MonoBehaviour:
   maze: {fileID: 767762767}
   closedMaterial: {fileID: 2100000, guid: a39ce23f4c7304a76aef66e35714e69b, type: 2}
   opendMaterial: {fileID: 2100000, guid: 05893fc3b659b442887050c52afecc9b, type: 2}
+  npc: {fileID: 2296688684082338900, guid: be27d251883fd2a41bd1857b66eb1d5b, type: 3}
   start: {fileID: 302218380737281610, guid: ef44b7d2e6e35443aab13daf5583bd3e, type: 3}
   end: {fileID: 6856673923357348324, guid: a05f88bb7457d4e59bd0ee0e79575ce1, type: 3}
   path: {fileID: 4872082831671335508, guid: fbc327f82b9b646dca7e0960e120ec66, type: 3}
@@ -368,8 +370,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.50012016, y: -0, z: -0, w: 0.865956}
-  m_LocalPosition: {x: 26, y: 54.3, z: -10}
+  m_LocalRotation: {x: -0.61098725, y: 0.0016598951, z: -0.0012813878, w: -0.79163766}
+  m_LocalPosition: {x: 52.29866, y: 115.96681, z: 27.39724}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
