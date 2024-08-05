@@ -41,6 +41,7 @@ public class PathMarker
 
 public class AstarPath : MonoBehaviour
 {
+    public static AstarPath Instance;
     #region Parameters
 
     public Maze maze;
@@ -62,17 +63,26 @@ public class AstarPath : MonoBehaviour
     private PathMarker lastPos;
     private bool done = false;
     private bool startMove;
+    private bool canMove = true;
     private bool startSearch;
     private bool canSearch = true;
+
+    private GameObject _npc;
+    private Animator _npcAnim;
     #endregion
 
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
     private void Start()
     {
         
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.A) && canSearch)
         {
@@ -82,26 +92,26 @@ public class AstarPath : MonoBehaviour
         {
             Search(lastPos);
         }
-        if (Input.GetKeyDown(KeyCode.S) && done)
+        if (Input.GetKeyDown(KeyCode.S) && done && canMove)
         {
             GetPath();
         }
         if (startMove)
         {
-            StartCoroutine(Move());
+            StartCoroutine(Move(.2f));
         }
     }
 
-    private void RemoveAllMarkers()
+    private static void RemoveAllMarkers()
     {
-        GameObject[] markers = GameObject.FindGameObjectsWithTag("marker");
+        var markers = GameObject.FindGameObjectsWithTag("marker");
         foreach (var m in markers)
         {
             Destroy(m);
         }
     }
 
-    private GameObject _npc;
+   
     private void BeginSearch()
     {
         canSearch = false;
@@ -120,7 +130,6 @@ public class AstarPath : MonoBehaviour
         var startLocation = new Vector3(locations[i].x * maze.scale, 0, locations[i].z * maze.scale);
         if(_npc==null)
         {
-            Debug.Log("nill");
             var a = false;
             while (!a)
             {
@@ -140,11 +149,11 @@ public class AstarPath : MonoBehaviour
             startNode = new PathMarker(new MapLocation(locations[i].x, locations[i].z), 0, 0, 0,
                 Instantiate(start, startLocation, Quaternion.identity), null);
             _npc = Instantiate(npc, startLocation, Quaternion.identity);
+            _npcAnim = _npc.GetComponentInChildren<Animator>();
             i++;
         }
         else
         {
-            Debug.Log("not nill");
             startLocation = _npc.transform.position;
             startNode = new PathMarker(new MapLocation((int)startLocation.x/maze.scale, (int)startLocation.z/maze.scale), 0, 0, 0,
                 Instantiate(start, startLocation, Quaternion.identity), null);
@@ -173,15 +182,15 @@ public class AstarPath : MonoBehaviour
         open.Add(startNode);
         lastPos = startNode;
         done = false;
-
+        UIManager.Instance.SetText("Press <color=red>S</color> to move");
     }
 
     private void Search(PathMarker pos)
     {
         if (pos.Equals(goalNode))
         {
-            Debug.Log("haha");
             done = true;
+            canMove = true;
             return;
         }
 
@@ -247,41 +256,58 @@ public class AstarPath : MonoBehaviour
     }
 
     private List<Vector3> movePath = new List<Vector3>();
+    private List<GameObject> pathList = new List<GameObject>();
     private void GetPath()
     {
         RemoveAllMarkers();
+        canMove = true;
+        bool abc = false;
         var begin = lastPos;
         while (!startNode.Equals(begin) && begin != null)
         {
             Vector3 a = new Vector3(begin.location.x * maze.scale, 0, begin.location.z * maze.scale);
-            Instantiate(path, a,
-                Quaternion.identity);
+            pathList.Add(Instantiate(abc==false?end:path, a,
+                Quaternion.identity));
             movePath.Add(a);
             begin = begin.parent;
+            abc = true;
         }
-        Instantiate(path, new Vector3(startNode.location.x * maze.scale, 0, startNode.location.z * maze.scale),
-            Quaternion.identity);
+        pathList.Add(Instantiate(path, new Vector3(startNode.location.x * maze.scale, 0, startNode.location.z * maze.scale),
+            Quaternion.identity));
         movePath.Add(new Vector3(startNode.location.x * maze.scale, 0, startNode.location.z * maze.scale));
         movePath.Reverse();
+        pathList.Reverse();
         startMove = true;
     }
 
-    private IEnumerator Move()
+    private IEnumerator Move(float moveTime)
     {
         startMove = false;
+        canMove = false;
+        _npcAnim.SetTrigger("Fly");
         for (var index = 0; index < movePath.Count; index++)
         {
+            var time = moveTime;
             var t = movePath[index];
-            _npc.transform.DOMove(t, .4f);
+            var dir = t - _npc.transform.position;
+            var rotate = Vector3.Angle(dir, _npc.transform.forward) >= 10;
+            if(rotate)
+            {
+                time = moveTime + .1f;
+                _npc.transform.DOLookAt(t, .1f);
+            }
+            _npc.transform.DOMove(t, moveTime);
             if (index == movePath.Count - 1)
             {
                 RemoveAllMarkers();
+                UIManager.Instance.SetText("Press <color=red>A</color> to randomize <color=yellow>new destination</color>");
+                _npcAnim.SetTrigger("Bounce");
                 startMove = false;
                 canSearch = true;
                 movePath = new List<Vector3>();
                 yield return null;
             }
-            yield return new WaitForSeconds(.4f);
+            yield return new WaitForSeconds(time);
         }
     }
 }

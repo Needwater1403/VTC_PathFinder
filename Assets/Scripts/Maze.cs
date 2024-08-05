@@ -52,6 +52,11 @@ public class Maze : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
+    }
+
+    public void StartGame()
+    {
         InitialiseMap();
         Generate();
         DrawMap();
